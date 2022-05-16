@@ -1,24 +1,38 @@
-#include <SFML/Graphics.hpp>
+#include <iostream>
+#include "Game.h"
+using namespace std;
+using namespace sf;
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
-
-    return 0;
+	//Наше окно
+	RenderWindow window(VideoMode(1280, 800), "FIRST GAME", Style::Titlebar | Style::Close);
+	Event proc;
+	// Цикл
+	while (window.isOpen())
+	{
+		//Действия
+		while (window.pollEvent(proc))
+		{
+			switch (proc.type)
+			{
+			case Event::Closed:
+			{
+				window.close();
+			}break;
+			case Event::KeyPressed:
+			{
+				if (proc.key.code == Keyboard::Escape)
+				{
+					window.close();
+				}
+			}break;
+			}
+		}
+		//Обработка
+		window.clear(Color::Black);
+		window.display();
+	}
+	//Конец игры
+	return 0;
 }
