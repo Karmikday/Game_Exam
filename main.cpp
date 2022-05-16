@@ -6,32 +6,15 @@ using namespace sf;
 int main()
 {
 	//Наше окно
-	RenderWindow window(VideoMode(1280, 800), "FIRST GAME", Style::Titlebar | Style::Close);
-	Event proc;
+	Game game;
 	// Цикл
-	while (window.isOpen())
+	while (game.running())
 	{
-		//Действия
-		while (window.pollEvent(proc))
-		{
-			switch (proc.type)
-			{
-			case Event::Closed:
-			{
-				window.close();
-			}break;
-			case Event::KeyPressed:
-			{
-				if (proc.key.code == Keyboard::Escape)
-				{
-					window.close();
-				}
-			}break;
-			}
-		}
+		//Добовление+
+		game.update();
 		//Обработка
-		window.clear(Color::Black);
-		window.display();
+		game.render();
+	
 	}
 	//Конец игры
 	return 0;

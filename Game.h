@@ -10,6 +10,7 @@ class Game
 {
 private:
 	RenderWindow* window;
+	VideoMode videomode;
 	Event proc;
 	void initVariables();
 	void initWindow();
@@ -18,8 +19,9 @@ public:
 	//Конструктор
 	Game();
 	virtual ~Game();
-
+	const bool running() const;
 	//функционал
+	void pollEvents();
 	void update();
 	void render();
 
