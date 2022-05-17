@@ -6,10 +6,13 @@ void Game::initVariables()
 
 
 	//ЛОГИКА ИГРЫ
+	this->endGame = false;
 	this->points = 0;
+	this->health = 10;
 	this->enemySpawnTimerMax = 10.f;
 	this->enemySpawnTimer = this->enemySpawnTimerMax;
-	this->maxEnemies = 5;
+	this->maxEnemies = 10;
+	this->mouseHeld = false;
 }
 
 void Game::initWindow()
@@ -19,11 +22,24 @@ void Game::initWindow()
 	this->window = new RenderWindow(this->videomode, "AIM LAB", Style::Titlebar | Style::Close);
 	this->window->setFramerateLimit(60);
 }
+void Game::initFonts()
+{
+	if(this->font.loadFromFile("Fonts/Ermilov-bold.otf"));
+	{
+		cout << "Failed to load font!" << "\n";
+	}
+}
+void Game::initText()
+{
+	this->uiText.setFont(this->font);
+	this->uiText.setCharacterSize(24);
+	this->uiText.setFillColor(Color::White);
+	this->uiText.setString("NONE");
+}
 void Game::initEnemies()
 {
 	this->enemy.setPosition(10.f,10.f);
 	this->enemy.setSize(Vector2f(100.f, 100.f));
-	this->enemy.setScale(Vector2f(0.5f, 0.5f));
 	this->enemy.setFillColor(Color::Cyan);
 	/*this->enemy.setOutlineColor(Color::Green);
 	this->enemy.setOutlineThickness(1.f);*/
@@ -33,8 +49,11 @@ void Game::initEnemies()
 Game::Game()
 {
 
+
 	this->initVariables(); 
 	this->initWindow();
+	this->initFonts();
+	this->initText();
 	this->initEnemies();
 }
 
@@ -47,6 +66,10 @@ const bool Game::running() const
 {
 	return this->window->isOpen();
 }
+const bool Game::getEndGame() const
+{
+	return this->endGame;
+}
 //функционал(Логика самой игры)
 
 void Game::spawnEnemy()
@@ -56,7 +79,35 @@ void Game::spawnEnemy()
 		static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - this->enemy.getSize().x)),
 		0.f
 	);
-	this->enemy.setFillColor(Color::Green);
+	//Рандом врагов
+	int type = rand() % 5;
+	switch (type)
+	{
+	case 0:
+		this->enemy.setSize(Vector2f(10.f, 10.f));
+		this->enemy.setFillColor(Color::Magenta);
+		break;
+	case 1:
+		this->enemy.setSize(Vector2f(30.f, 30.f));
+		this->enemy.setFillColor(Color::Blue);
+		break;
+	case 2:
+		this->enemy.setSize(Vector2f(50.f, 50.f));
+		this->enemy.setFillColor(Color::Cyan);
+		break;
+	case 3:
+		this->enemy.setSize(Vector2f(70.f, 70.f));
+		this->enemy.setFillColor(Color::Red);
+		break;
+	case 4:
+		this->enemy.setSize(Vector2f(100.f, 100.f));
+		this->enemy.setFillColor(Color::Green);
+		break;
+	default:
+		this->enemy.setSize(Vector2f(100.f, 100.f));
+		this->enemy.setFillColor(Color::Yellow);
+		break;
+	}
 	//Генерация врагов
 	this->enemies.push_back(this->enemy);
 }
@@ -85,6 +136,14 @@ void Game::updateMousePositions()
 	this->mousePostView = this->window->mapPixelToCoords(this->mousePosWindow);
 }
 
+void Game::updateText()
+{
+	stringstream ss;
+	ss << "Points: " << this->points << "\n"
+		<< "Health: " << this->health << "\n";
+	this->uiText.setString(ss.str());
+}
+
 void Game::updateEnemies()
 {
 	//Обновление таймера для генерации врагов
@@ -99,37 +158,82 @@ void Game::updateEnemies()
 		else
 			this->enemySpawnTimer += 1.f;
 	}
-	//Движение врагов
+	//Движение и обновление врагов
+	
 	for (int i = 0; i < this->enemies.size(); i++)
 	{
-		this->enemies[i].move(0.f, 1.f);
+		bool deleted = false;
 
-		//Проверка на нажатие по врагу
-		if (Mouse::isButtonPressed(Mouse::Left))
+		this->enemies[i].move(0.f, 5.f);
+
+		if (this->enemies[i].getPosition().y > this->window->getSize().y)
 		{
-			if (this->enemies[i].getGlobalBounds().contains(this->mousePostView))
+			this->enemies.erase(this->enemies.begin() + i);
+			this->health -= 1;
+			cout << "Health: " << this->health << "\n";
+		}
+	}
+	//Проверка на нажатие по врагу
+	
+	if (Mouse::isButtonPressed(Mouse::Left))
+	{
+		if (this->mouseHeld == false)
+		{
+			this->mouseHeld = true;
+			bool deleted = false;
+			for (size_t i = 0; i < this->enemies.size() && deleted == false; i++)
 			{
-				this->enemies.erase(this->enemies.begin() + i);
+				if (this->enemies[i].getGlobalBounds().contains(this->mousePostView))
+				{
+					//Наши очки
+					if (this->enemies[i].getFillColor() == Color::Magenta)
+						this->points += 10;
+					else if (this->enemies[i].getFillColor() == Color::Blue)
+						this->points += 7;
+					else if (this->enemies[i].getFillColor() == Color::Cyan)
+						this->points += 5;
+					else if (this->enemies[i].getFillColor() == Color::Red)
+						this->points += 3;
+					else if (this->enemies[i].getFillColor() == Color::Green)
+						this->points += 1;
+					cout << "Points: " << this->points << "\n";
+					//Удаляем врага
+					deleted = true;
+					this->enemies.erase(this->enemies.begin() + i);
+				}
 			}
 		}
+	}
+	else
+	{
+		this->mouseHeld = false;
 	}
 }
 
 void Game::update()
 {
 	this->pollEvents();
-
-	this->updateMousePositions();
-
-	this->updateEnemies();
-
+	if (this->endGame == false)
+	{
+		this->updateMousePositions();
+		this->updateText();
+		this->updateEnemies();
+	}
+	//КОНЕЦ ИГРЫ
+	if (this->health <= 0)
+		this->endGame = true;
 }
 
-void Game::renderEnemies()
+void Game::renderText(RenderTarget& target)
+{
+	target.draw(this->uiText);
+}
+
+void Game::renderEnemies(RenderTarget& target)
 {
 	for (auto& e : this->enemies)
 	{
-		this->window->draw(e);
+		target.draw(e);
 	}
 }
 
@@ -138,7 +242,8 @@ void Game::render()
 {
 	this->window->clear();
 	//ПРОРИСОВКА ОКНА
-	this->renderEnemies();
+	this->renderEnemies(*this->window);
+	this->renderText(*this->window);
 	this->window->display();
 
 }

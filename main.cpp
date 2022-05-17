@@ -10,7 +10,7 @@ int main()
 	//Наше окно
 	Game game;
 	// Цикл
-	while (game.running())
+	while (game.running() && !game.getEndGame())
 	{
 		//Добовление+
 		game.update();
