@@ -5,6 +5,8 @@ using namespace sf;
 
 int main()
 {
+	//рандом
+	srand(static_cast<unsigned>(time(0)));
 	//Наше окно
 	Game game;
 	// Цикл
