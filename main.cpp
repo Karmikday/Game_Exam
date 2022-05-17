@@ -2,7 +2,6 @@
 #include "Game.h"
 using namespace std;
 using namespace sf;
-
 int main()
 {
 	//рандом
@@ -12,6 +11,7 @@ int main()
 	// Цикл
 	while (game.running() && !game.getEndGame())
 	{
+
 		//Добовление+
 		game.update();
 		//Обработка

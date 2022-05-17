@@ -9,22 +9,26 @@ void Game::initVariables()
 	this->endGame = false;
 	this->points = 0;
 	this->health = 10;
-	this->enemySpawnTimerMax = 10.f;
+	this->enemySpawnTimerMax = 15.f;
 	this->enemySpawnTimer = this->enemySpawnTimerMax;
-	this->maxEnemies = 10;
+	this->maxEnemies = 5;
 	this->mouseHeld = false;
 }
 
 void Game::initWindow()
 {
-	this->videomode.height = 800;
-	this->videomode.width = 1280;
-	this->window = new RenderWindow(this->videomode, "AIM LAB", Style::Titlebar | Style::Close);
+	this->videomode.getFullscreenModes;
+	this->window = new RenderWindow(this->videomode, "AIM LAB", Style::Titlebar | Style::Fullscreen);
 	this->window->setFramerateLimit(60);
+	this->imAge.loadFromFile("Photos/555.jpg");
+	this->texTure.loadFromImage(imAge);
+	this->spRite.setTexture(texTure);
+	this->spRite.setPosition(450.f,200.f);
+	this->spRite.getPosition();
 }
 void Game::initFonts()
 {
-	if(this->font.loadFromFile("Fonts/Ermilov-bold.otf"));
+	if(this->font.loadFromFile("Fonts/CactiDisplay.otf"));
 	{
 		cout << "Failed to load font!" << "\n";
 	}
@@ -84,7 +88,7 @@ void Game::spawnEnemy()
 	switch (type)
 	{
 	case 0:
-		this->enemy.setSize(Vector2f(10.f, 10.f));
+		this->enemy.setSize(Vector2f(20.f, 20.f));
 		this->enemy.setFillColor(Color::Magenta);
 		break;
 	case 1:
@@ -164,7 +168,7 @@ void Game::updateEnemies()
 	{
 		bool deleted = false;
 
-		this->enemies[i].move(0.f, 5.f);
+		this->enemies[i].move(0.f, 3.f);
 
 		if (this->enemies[i].getPosition().y > this->window->getSize().y)
 		{
@@ -224,6 +228,11 @@ void Game::update()
 		this->endGame = true;
 }
 
+void Game::renderSpite(RenderTarget& target)
+{
+	target.draw(this->spRite);
+}
+
 void Game::renderText(RenderTarget& target)
 {
 	target.draw(this->uiText);
@@ -242,9 +251,12 @@ void Game::render()
 {
 	this->window->clear();
 	//ÏÐÎÐÈÑÎÂÊÀ ÎÊÍÀ
+	this->renderSpite(*this->window);
 	this->renderEnemies(*this->window);
 	this->renderText(*this->window);
 	this->window->display();
+	
 
 }
+
 

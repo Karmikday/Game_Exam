@@ -21,6 +21,9 @@ private:
 	Vector2i mousePosWindow;
 	Vector2f mousePostView;
 
+	Image imAge;
+	Texture texTure;
+	Sprite spRite;
 	//Ресурсы
 	Font font;
 
@@ -48,6 +51,7 @@ private:
 	void initFonts();
 	void initText();
 	void initEnemies();
+	
 
 public:
 	//Конструктор
@@ -62,6 +66,7 @@ public:
 	void updateText();
 	void updateEnemies();
 	void update();
+	void renderSpite(RenderTarget& target);
 	void renderText(RenderTarget& target);
 	void renderEnemies(RenderTarget& target);
 	void render();
